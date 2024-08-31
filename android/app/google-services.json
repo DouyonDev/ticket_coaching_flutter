@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "704298944531",
+    "project_id": "ticket-coaching",
+    "storage_bucket": "ticket-coaching.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:704298944531:android:1939ba1838df5e04eb97e6",
+        "android_client_info": {
+          "package_name": "com.odk.ticket_coaching_flutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBE-ycaAaAXq8ZAG44LYlqstTBVzd6rsr0"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
