@@ -59,3 +59,9 @@ flutter {
 }
 
 apply plugin: 'com.google.gms.google-services' // à la fin du fichier
+
+dependencies {
+    implementation platform('com.google.firebase:firebase-bom:31.0.2')
+    implementation 'com.google.firebase:firebase-auth'
+    // autres dépendances
+}

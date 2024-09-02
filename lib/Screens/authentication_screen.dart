@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -11,36 +12,58 @@ class _LoginScreenState extends State<LoginScreen> {
   String _password = '';
   bool _obscureText = true;
 
-  void _submitForm() {
+  // Instance de FirebaseAuth
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
+  // Méthode pour gérer la soumission du formulaire
+  Future<void> _submitForm() async {
     final isValid = _formKey.currentState?.validate();
     if (isValid != null && isValid) {
       _formKey.currentState?.save();
-      // Gérer la connexion ici avec _email et _password
+      try {
+        // Tentative de connexion avec email et mot de passe
+        UserCredential userCredential = await _auth.signInWithEmailAndPassword(
+          email: _email,
+          password: _password,
+        );
+        // Connexion réussie, vous pouvez naviguer vers une autre page ici
+        print('Connexion réussie : ${userCredential.user?.email}');
+      } on FirebaseAuthException catch (e) {
+        // Gestion des erreurs d'authentification
+        if (e.code == 'user-not-found') {
+          print('Aucun utilisateur trouvé pour cet email.');
+        } else if (e.code == 'wrong-password') {
+          print('Mot de passe incorrect.');
+        } else {
+          print('Erreur d\'authentification : ${e.message}');
+        }
+      } catch (e) {
+        print('Erreur : $e');
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff1E1C40),
       body: Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(40.0),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Spacer(),
             Image.asset(
-              "assets/images/logoDeme.png", // Chemin vers le logo
-              height: 80,
+              "assets/images/logoDeme.png", // Chem in vers le logo
+              height: 150,
             ),
-            Spacer(), // Espace flexible pour pousser les éléments vers le bas
-            Text(
+            const Text(
               "Se connecter",
               style: TextStyle(
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                //fontWeight: FontWeight.bold,
+                color: Color(0xffF79621),
               ),
             ),
-            SizedBox(height: 20),
+            const SizedBox(height: 100),
             Form(
               key: _formKey,
               child: Column(
@@ -55,8 +78,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     },
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
-                      labelText: 'Email',
-                      prefixIcon: Icon(Icons.mail),
+                      iconColor: const Color(0xffA6A6A6),
+                      labelText: 'Votre e-mail',
+                      labelStyle: const TextStyle(color: Color(0xffA6A6A6)),
+                      prefixIcon: const Icon(Icons.mail),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
@@ -80,7 +105,9 @@ class _LoginScreenState extends State<LoginScreen> {
                       prefixIcon: Icon(Icons.lock),
                       suffixIcon: IconButton(
                         icon: Icon(
-                          _obscureText ? Icons.visibility : Icons.visibility_off,
+                          _obscureText
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                         ),
                         onPressed: () {
                           setState(() {
@@ -110,7 +137,8 @@ class _LoginScreenState extends State<LoginScreen> {
                   ElevatedButton(
                     onPressed: _submitForm,
                     style: ElevatedButton.styleFrom(
-                      padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                      padding:
+                          EdgeInsets.symmetric(horizontal: 40, vertical: 15),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(10.0),
                       ),
