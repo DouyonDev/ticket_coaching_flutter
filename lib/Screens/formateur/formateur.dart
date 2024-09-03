@@ -1,24 +1,25 @@
 import 'package:flutter/material.dart';
+import 'package:ticket_coaching_flutter/Screens/formateur/mes_apprenants.dart';
+import 'package:ticket_coaching_flutter/Screens/formateur/tickets_tous.dart';
 import 'package:ticket_coaching_flutter/Screens/profil.dart';
-import 'package:ticket_coaching_flutter/Screens/tickets_resolu_tout.dart';
 
-import 'mes_tickets.dart';
+import '../mes_tickets.dart';
 
 ///  Created by abdoulaye.douyon on 02/09/2024.
-class Apprenant extends StatefulWidget {
-  //Apprenant({required Key key}) : super(key: key);
+class Formateur extends StatefulWidget {
+  //Formateur({required Key key}) : super(key: key);
 
   @override
-  _ApprenantState createState() => _ApprenantState();
+  _FormateurState createState() => _FormateurState();
 }
 
-class _ApprenantState extends State<Apprenant> {
+class _FormateurState extends State<Formateur> {
   int _selectedIndex = 0;  // Index pour suivre l'élément sélectionné
 
   // Liste des widgets pour chaque page
   static final List<Widget> _pages = <Widget>[
-    TicketsResoluTout(),
-    MesTickets(),
+    TicketsTous(),
+    MesApprenants(),
     const Center(child: Text('Page 3', style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold))),
     Profil(),
   ];
@@ -38,11 +39,11 @@ class _ApprenantState extends State<Apprenant> {
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Tickets',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Tickets',
+            icon: Icon(Icons.person_add_sharp),
+            label: 'Apprenants',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.school),

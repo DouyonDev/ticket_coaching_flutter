@@ -49,7 +49,7 @@ class _AjoutTicketState extends State<AjoutTicket> {
             'description': _description,
             'created_at': Timestamp.now(),
             'user_id': user.uid, // Enregistrement de l'ID de l'utilisateur
-            'statut': "en_cours",
+            'statut': "en_attente",
           });
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Ticket créé avec succès!'),

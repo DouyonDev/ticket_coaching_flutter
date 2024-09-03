@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ticket_coaching_flutter/Screens/apprenant.dart';
+import 'package:ticket_coaching_flutter/Screens/formateur/formateur.dart';
 import 'package:ticket_coaching_flutter/Screens/mes_tickets.dart';
 
 import 'ajout_ticket.dart';
@@ -46,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         } else if (userRole == 'APPRENANT') {
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Apprenant()),);
         } else if (userRole == 'FORMATEUR') {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AjoutTicket()),);
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Formateur()),);
         }else {
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AjoutTicket()),);
         }
