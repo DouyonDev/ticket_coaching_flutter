@@ -4,7 +4,9 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:ticket_coaching_flutter/BackgroundScaffold.dart';
 
-import 'authentication_screen.dart';
+import 'Screens/ajout_ticket.dart';
+import 'Screens/authentication_screen.dart';
+import 'Screens/bienvenue.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         hintColor: Colors.orange, // Couleur de fond par défaut
       ),
-      home: HomeScreen(),
+      home: Bienvenue(),
     );
   }
 }
@@ -46,7 +48,16 @@ class HomeScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   },
-                  child: Text("Voir les tickets"),
+                  child: Text("page de connexion"),
+                ),
+                ElevatedButton(
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => AjoutTicket()),
+                    );
+                  },
+                  child: Text("Ajout tickets"),
                 ),
               ],
             ),
