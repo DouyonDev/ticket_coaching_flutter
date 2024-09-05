@@ -1,25 +1,28 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:ticket_coaching_flutter/Screens/formateur/mes_apprenants.dart';
+import 'package:ticket_coaching_flutter/Screens/formateur/tickets_tous.dart';
 import 'package:ticket_coaching_flutter/Screens/profil.dart';
-import 'package:ticket_coaching_flutter/Screens/tickets_resolu_tout.dart';
 
-import 'mes_tickets.dart';
+import '../discussion_page.dart';
+
 
 ///  Created by abdoulaye.douyon on 02/09/2024.
-class Apprenant extends StatefulWidget {
-  //Apprenant({required Key key}) : super(key: key);
+class Admin extends StatefulWidget {
+  //Admin({required Key key}) : super(key: key);
 
   @override
-  _ApprenantState createState() => _ApprenantState();
+  _AdminState createState() => _AdminState();
 }
 
-class _ApprenantState extends State<Apprenant> {
+class _AdminState extends State<Admin> {
   int _selectedIndex = 0;  // Index pour suivre l'élément sélectionné
 
   // Liste des widgets pour chaque page
   static final List<Widget> _pages = <Widget>[
-    TicketsResoluTout(),
-    MesTickets(),
-    const Center(child: Text('Page 3', style: TextStyle(fontSize: 35, fontWeight: FontWeight.bold))),
+    TicketsTous(),
+    MesApprenants(),
+    DiscussionsPage(userId: FirebaseAuth.instance.currentUser!.uid),
     Profil(),
   ];
 
@@ -33,16 +36,20 @@ class _ApprenantState extends State<Apprenant> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],  // Affichage de la page sélectionnée
+      backgroundColor: const Color(0xff1E1C40),
+      body: Container(
+        color: const Color(0xff1E1C40),
+        child: _pages[_selectedIndex],// Affichage de la page sélectionnée
+      ),
       bottomNavigationBar: BottomNavigationBar(
         items: const <BottomNavigationBarItem>[
           BottomNavigationBarItem(
             icon: Icon(Icons.home),
-            label: 'Home',
+            label: 'Tickets',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.business),
-            label: 'Tickets',
+            icon: Icon(Icons.person_add_sharp),
+            label: 'Apprenants',
           ),
           BottomNavigationBarItem(
             icon: Icon(Icons.school),

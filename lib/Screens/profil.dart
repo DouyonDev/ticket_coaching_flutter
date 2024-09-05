@@ -22,13 +22,14 @@ class Profil extends StatelessWidget {
     }
 
     return Scaffold(
+      backgroundColor: const Color(0xff1E1C40),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: FutureBuilder<DocumentSnapshot>(
           future: FirebaseFirestore.instance.collection('utilisateurs').doc(user.uid).get(),
           builder: (context, snapshot) {
             if (snapshot.connectionState == ConnectionState.waiting) {
-              return const Center(child: CircularProgressIndicator());
+              return const Center(child: CircularProgressIndicator(color: Color(0xffF79621),));
             }
             if (!snapshot.hasData || !snapshot.data!.exists) {
               return const Center(child: Text('Impossible de récupérer les informations utilisateur.'));
@@ -64,9 +65,11 @@ class Profil extends StatelessWidget {
                   ),
                   child: Row(
                     children: [
-                      const CircleAvatar(
+                      CircleAvatar(
                         radius: 40.0,
-                        backgroundImage: AssetImage('assets/images/boy.png'), // Remplacez par le chemin de votre image
+                        backgroundImage: data['imageUrl'] != null
+                            ? NetworkImage(data['imageUrl'])  // Utiliser NetworkImage pour les images depuis Firebase Storage
+                            : const AssetImage('assets/images/boy.png') as ImageProvider,
                       ),
                       const SizedBox(width: 16.0),
                       Expanded(
@@ -175,14 +178,15 @@ class Profil extends StatelessWidget {
 
   Widget _buildListItem(BuildContext context, {required IconData icon, required String title, required Function onTap}) {
     return ListTile(
-      leading: Icon(icon, color: Colors.grey[700]),
+      leading: Icon(icon, color: Colors.white),
       title: Text(
         title,
         style: const TextStyle(
           fontSize: 16.0,
+          color: Colors.white,
         ),
       ),
-      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.grey),
+      trailing: const Icon(Icons.arrow_forward_ios, color: Colors.blueGrey),
       onTap: () => onTap(),
     );
   }

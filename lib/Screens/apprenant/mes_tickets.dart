@@ -3,15 +3,22 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/affichage_ticket.dart';
+import '../widgets/boutons_filtre.dart';
+import 'ajout_ticket.dart';
 
-///  Created by abdoulaye.douyon on 02/09/2024.
-class TicketsTous extends StatefulWidget {
+class MesTickets extends StatefulWidget {
   @override
-  _TicketsTousState createState() => _TicketsTousState();
+  _MesTicketsState createState() => _MesTicketsState();
 }
 
-class _TicketsTousState extends State<TicketsTous> {
+class _MesTicketsState extends State<MesTickets> {
   String selectedStatus = 'tout'; // Par défaut, on affiche tous les tickets
+
+  void _updateStatus(String status) {
+    setState(() {
+      selectedStatus = status;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +44,34 @@ class _TicketsTousState extends State<TicketsTous> {
         backgroundColor: const Color(0xff1E1C40),
         automaticallyImplyLeading: false,
         toolbarHeight: 70,
-        title: const Column(
+        title: Column(
           children: [
-            SizedBox(
+            const SizedBox(height: 50),
+            ElevatedButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AjoutTicket()),
+                );
+              },
+              child: Text("Ajouter un ticket"),
+              style: ElevatedButton.styleFrom(
+                foregroundColor: Colors.white,
+                backgroundColor: const Color(0xff0E39C6),
+                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Espacement personnalisé
+              ),
+            ),
+            const SizedBox(height: 10),
+            const SizedBox(
+              width: double.infinity,
+              height: 40.0,
               child: Text(
-                "Liste des tickets",
+                "Soumettez votre problème",
                 style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 30,
+                  color: Color(0xff7B78AA),
+                  fontSize: 13,
                 ),
+                textAlign: TextAlign.center,
               ),
             ),
           ],
@@ -60,10 +85,30 @@ class _TicketsTousState extends State<TicketsTous> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              _buildFilterButton('Tout', 'tout'),
-              _buildFilterButton('En attente', 'en_attente'),
-              _buildFilterButton('En cours', 'en_cours'),
-              _buildFilterButton('Resolu', 'resolu'),
+              FilterButton(
+                label: 'Tout',
+                status: 'tout',
+                selectedStatus: selectedStatus,
+                onStatusSelected: _updateStatus,
+              ),
+              FilterButton(
+                label: 'En attente',
+                status: 'en_attente',
+                selectedStatus: selectedStatus,
+                onStatusSelected: _updateStatus,
+              ),
+              FilterButton(
+                label: 'En cours',
+                status: 'en_cours',
+                selectedStatus: selectedStatus,
+                onStatusSelected: _updateStatus,
+              ),
+              FilterButton(
+                label: 'Résolu',
+                status: 'resolu',
+                selectedStatus: selectedStatus,
+                onStatusSelected: _updateStatus,
+              ),
             ],
           ),
           Expanded(
@@ -71,7 +116,17 @@ class _TicketsTousState extends State<TicketsTous> {
               stream: _getTicketsStream(user),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
+                  return const Center(child: CircularProgressIndicator(color: Color(0xffF79621),));
+                }
+                if (snapshot.hasError) {
+                  return const Center(
+                      child: Text(
+                          'Erreur lors de la récupération des tickets.',
+                        style: TextStyle(
+                          color: Colors.white,
+                        ),
+                      )
+                  );
                 }
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
@@ -86,7 +141,7 @@ class _TicketsTousState extends State<TicketsTous> {
                 return ListView(
                   children: snapshot.data!.docs.map((doc) {
                     final data = doc.data() as Map<String, dynamic>;
-                    data['id_ticket'] = doc.id;//Ajouter l'id du ticket
+                    data['id_ticket'] = doc.id;
                     return AffichageTicket(ticketData: data);
                   }).toList(),
                 );
@@ -98,47 +153,19 @@ class _TicketsTousState extends State<TicketsTous> {
     );
   }
 
-  // 3. Construire un bouton de filtre
-  Widget _buildFilterButton(String label, String status) {
-    return ElevatedButton(
-      onPressed: () {
-        setState(() {
-          selectedStatus = status;
-        });
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: selectedStatus == status ? const Color(0xff0E39C6) : Colors.white,
-        minimumSize: const Size(10, 20), // Ajustez ici la longueur et la largeur du bouton
-        textStyle: const TextStyle(
-          fontSize: 10, // Ajustez ici la taille de la police
-        ),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(8.0), // Pour arrondir les coins si nécessaire
-          side: BorderSide(color: selectedStatus == status ? Colors.transparent : Colors.black), // Ajoutez une bordure si nécessaire
-        ),
-      ),
-      child: Text(
-        label,
-        style: TextStyle(
-          color: selectedStatus == status ? Colors.white : Colors.black, // Changement de couleur du texte
-        ),
-      ),
-    );
-
-  }
-
   // 4. Fonction pour obtenir les tickets en fonction du statut sélectionné
   Stream<QuerySnapshot> _getTicketsStream(User user) {
     if (selectedStatus == 'tout') {
       return FirebaseFirestore.instance
           .collection('tickets')
+          .where('id_apprenant', isEqualTo: user.uid)
           .snapshots();
     } else {
       return FirebaseFirestore.instance
           .collection('tickets')
+          .where('id_apprenant', isEqualTo: user.uid)
           .where('statut', isEqualTo: selectedStatus)
           .snapshots();
     }
   }
-
 }

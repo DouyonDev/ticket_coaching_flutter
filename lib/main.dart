@@ -1,10 +1,7 @@
-import 'dart:ui';
-
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:ticket_coaching_flutter/BackgroundScaffold.dart';
 
-import 'Screens/ajout_ticket.dart';
+import 'Screens/apprenant/ajout_ticket.dart';
 import 'Screens/authentication_screen.dart';
 import 'Screens/bienvenue.dart';
 
@@ -39,8 +36,8 @@ class HomeScreen extends StatelessWidget {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text("Bienvenue!"),
-                SizedBox(height: 20),
+                const Text("Bienvenue!"),
+                const SizedBox(height: 20),
                 ElevatedButton(
                   onPressed: () {
                     Navigator.push(
@@ -48,7 +45,7 @@ class HomeScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => LoginScreen()),
                     );
                   },
-                  child: Text("page de connexion"),
+                  child: const Text("page de connexion"),
                 ),
                 ElevatedButton(
                   onPressed: () {
@@ -57,7 +54,7 @@ class HomeScreen extends StatelessWidget {
                       MaterialPageRoute(builder: (context) => AjoutTicket()),
                     );
                   },
-                  child: Text("Ajout tickets"),
+                  child: const Text("Ajout tickets"),
                 ),
               ],
             ),

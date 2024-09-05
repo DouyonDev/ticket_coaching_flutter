@@ -59,11 +59,16 @@ class _PasswordChangeState extends State<PasswordChange> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xff1E1C40),
+      appBar: AppBar(
+        backgroundColor: const Color(0xff1E1C40),
+        foregroundColor: Colors.white,
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            const SizedBox(height: 100),
+            const SizedBox(height: 30),
             Container(
               padding: const EdgeInsets.all(16.0),
               child: const Column(
@@ -73,18 +78,28 @@ class _PasswordChangeState extends State<PasswordChange> {
                     backgroundImage: AssetImage('assets/images/reset-password.png'),
                   ),
                   SizedBox(height: 10),
-                  Text("Changer de mot de passe"),
+                  Text(
+                      "Changer de mot de passe",
+                      style: TextStyle(
+                        color: Colors.white,
+                      ),
+                  ),
                 ],
               ),
             ),
+            const SizedBox(height: 40),
             Expanded(
               child: ListView(
                 children: [
                   TextField(
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
                     controller: _oldPasswordController,
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Ancien mot de passe',
+                      labelStyle: TextStyle(color: Color(0xffA6A6A6)),
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -94,6 +109,7 @@ class _PasswordChangeState extends State<PasswordChange> {
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Nouveau mot de passe',
+                      labelStyle: TextStyle(color: Color(0xffA6A6A6)),
                       border: OutlineInputBorder(),
                     ),
                   ),
@@ -103,13 +119,22 @@ class _PasswordChangeState extends State<PasswordChange> {
                     obscureText: true,
                     decoration: const InputDecoration(
                       labelText: 'Confirmer le mot de passe',
+                      labelStyle: TextStyle(color: Color(0xffA6A6A6)),
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: _changePassword,
-                    child: const Text('Enregistrer les modifications'),
+                  const SizedBox(height: 40),
+                  SizedBox(
+                    width: 5,
+                    height: 30,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xff0E39C6),
+                      ),
+                      onPressed: _changePassword,
+                      child: const Text('Modifier'),
+                    ),
                   ),
                 ],
               ),

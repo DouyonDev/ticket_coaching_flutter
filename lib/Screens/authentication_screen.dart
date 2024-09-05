@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:ticket_coaching_flutter/Screens/apprenant.dart';
+import 'package:ticket_coaching_flutter/Screens/apprenant/apprenant.dart';
 import 'package:ticket_coaching_flutter/Screens/formateur/formateur.dart';
-import 'package:ticket_coaching_flutter/Screens/mes_tickets.dart';
+import 'package:ticket_coaching_flutter/Screens/widgets/message_modale.dart';
 
-import 'ajout_ticket.dart';
+
+import 'admin/admin.dart';
+import 'apprenant/ajout_ticket.dart';
 
 class LoginScreen extends StatefulWidget {
   @override
@@ -41,9 +43,19 @@ class _LoginScreenState extends State<LoginScreen> {
         String userRole = userDoc['role'];
         // Connexion réussie, vous pouvez naviguer vers une autre page ici
         print('Connexion réussie : ${userCredential.user?.email}, son role est : ${userRole}');
+        // Afficher la boîte de dialogue modale de succès
+        showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return const MessageModale(
+              title: "Success",
+              content: "Connexion réussie",
+            );
+          },
+        );
         // Redirection en fonction du rôle
         if (userRole == 'ADMIN') {
-          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => AjoutTicket()),);
+          Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Admin()),);
         } else if (userRole == 'APPRENANT') {
           Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => Apprenant()),);
         } else if (userRole == 'FORMATEUR') {
@@ -55,12 +67,43 @@ class _LoginScreenState extends State<LoginScreen> {
         // Gestion des erreurs d'authentification
         if (e.code == 'user-not-found') {
           print('Aucun utilisateur trouvé pour cet email.');
+          // Afficher la boîte de dialogue modale de succès
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const MessageModale(
+                title: "Erreur",
+                content: "Aucun utilisateur trouvé pour cet email.",
+              );
+            },
+          );
         } else if (e.code == 'wrong-password') {
           print('Mot de passe incorrect.');
+          // Afficher la boîte de dialogue modale de succès
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const MessageModale(
+                title: "Erreur",
+                content: "Mot de passe incorrect.",
+              );
+            },
+          );
         } else {
+          // Afficher la boîte de dialogue modale de succès
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return const MessageModale(
+                title: "Erreur : Problème d'authentification",
+                content: "Veuillez revérifier vos coordonnées saisies",
+              );
+            },
+          );
           print('Erreur d\'authentification : ${e.message}');
         }
       } catch (e) {
+
         print('Erreur : $e');
       }
     }
@@ -80,7 +123,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 height: 150,
               ),
               const Text(
-                "Se connecter",
+                "Connexion",
                 style: TextStyle(
                   fontSize: 24,
                   color: Color(0xffF79621),
@@ -126,7 +169,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       obscureText: _obscureText,
                       decoration: InputDecoration(
                         labelText: 'Mot de passe',
-                        prefixIcon: Icon(Icons.lock),
+                        labelStyle: const TextStyle(color: Color(0xffA6A6A6)),
+                        prefixIcon: const Icon(Icons.lock),
                         suffixIcon: IconButton(
                           icon: Icon(
                             _obscureText ? Icons.visibility : Icons.visibility_off,
@@ -146,26 +190,28 @@ class _LoginScreenState extends State<LoginScreen> {
                         _password = value!;
                       },
                     ),
-                    SizedBox(height: 10),
+                    const SizedBox(height: 10),
                     Align(
                       alignment: Alignment.centerRight,
                       child: TextButton(
                         onPressed: () {
                           // Gérer le mot de passe oublié ici
                         },
-                        child: Text("Mot de passe oublié ?"),
+                        child: const Text("Mot de passe oublié ?"),
                       ),
                     ),
-                    SizedBox(height: 20),
+                    const SizedBox(height: 20),
                     ElevatedButton(
                       onPressed: _submitForm,
                       style: ElevatedButton.styleFrom(
-                        padding: EdgeInsets.symmetric(horizontal: 40, vertical: 15),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(10.0),
+                        textStyle: const TextStyle(
+                          fontSize: 20,
                         ),
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xff0E39C6),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Espacement personnalisé
                       ),
-                      child: Text("Se connecter"),
+                      child: const Text("Se connecter"),
                     ),
                   ],
                 ),

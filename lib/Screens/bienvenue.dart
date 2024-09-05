@@ -16,7 +16,7 @@ class _BienvenueState extends State<Bienvenue> {
   void initState() {
     super.initState();
     // Naviguer vers la page principale après 3 secondes
-    Timer(Duration(seconds: 5), () {
+    Timer( const Duration(seconds: 5), () {
       Navigator.of(context).pushReplacement(
         MaterialPageRoute(builder: (context) => LoginScreen()),
       );

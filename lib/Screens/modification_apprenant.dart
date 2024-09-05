@@ -2,8 +2,10 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart'; // Import de Firebase Storage
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:ticket_coaching_flutter/Screens/widgets/message_modale.dart';
 
 class ModificationApprenant extends StatefulWidget {
   @override
@@ -14,12 +16,16 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
   String? _imagePath;
   late TextEditingController _prenomController;
   late TextEditingController _nomController;
+  String? _imageUrl; // Stocker l'URL de l'image
+  bool _isLoading = true; // Indicateur de chargement
 
   @override
   void initState() {
     super.initState();
-
-    // Initialisation des contrôleurs de texte avec les valeurs actuelles de l'utilisateur
+    // Initialisation des contrôleurs de texte avec des valeurs vides
+    _prenomController = TextEditingController();
+    _nomController = TextEditingController();
+    // Charger les données utilisateur
     _initializeUserData();
   }
 
@@ -28,8 +34,10 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
     if (user != null) {
       final userData = await FirebaseFirestore.instance.collection('utilisateurs').doc(user.uid).get();
       setState(() {
-        _prenomController = TextEditingController(text: userData['prenom']);
-        _nomController = TextEditingController(text: userData['nom']);
+        _prenomController.text = userData['prenom'] ?? '';
+        _nomController.text = userData['nom'] ?? '';
+        _imageUrl = userData.data()?['imageUrl'] ?? ''; // Si 'imageUrl' n'existe pas, assigner une chaîne vide
+        _isLoading = false; // Fin du chargement
       });
     }
   }
@@ -41,6 +49,36 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
       setState(() {
         _imagePath = image.path;
       });
+      await _uploadImage(File(image.path)); // Uploader l'image sélectionnée
+    }
+  }
+
+  Future<void> _uploadImage(File image) async {
+    try {
+      final user = FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        // Créer une référence dans Firebase Storage pour l'image
+        Reference ref = FirebaseStorage.instance
+            .ref()
+            .child('profile_images')
+            .child(user.uid + '.jpg');
+
+        // Uploader l'image
+        await ref.putFile(image);
+
+        // Récupérer l'URL de l'image uploadée
+        String downloadUrl = await ref.getDownloadURL();
+        setState(() {
+          _imageUrl = downloadUrl;
+        });
+
+        // Mettre à jour l'URL de l'image dans Firestore
+        await FirebaseFirestore.instance.collection('utilisateurs').doc(user.uid).update({
+          'imageUrl': _imageUrl,
+        });
+      }
+    } catch (e) {
+      print('Erreur lors de l\'upload de l\'image : $e');
     }
   }
 
@@ -48,8 +86,16 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
   Widget build(BuildContext context) {
     final user = FirebaseAuth.instance.currentUser;
 
+    if (_isLoading) {
+      // Affichage d'un indicateur de chargement pendant le chargement des données
+      return const Center(child: CircularProgressIndicator());
+    }
+
     return Scaffold(
+      backgroundColor: const Color(0xff1E1C40),
       appBar: AppBar(
+        backgroundColor: const Color(0xff1E1C40),
+        foregroundColor: Colors.white,
         title: const Text('Modifier le profil'),
       ),
       body: Padding(
@@ -59,10 +105,6 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
             // Bloc pour la photo de profil
             Container(
               padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: Colors.grey[200],
-                borderRadius: BorderRadius.circular(10.0),
-              ),
               child: Column(
                 children: [
                   Stack(
@@ -71,8 +113,9 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
                         radius: 50.0,
                         backgroundImage: _imagePath != null
                             ? FileImage(File(_imagePath!))
-                            : const AssetImage('assets/images/boy.png')
-                        as ImageProvider, // Remplacez par le chemin de votre image
+                            : (_imageUrl != null
+                            ? NetworkImage(_imageUrl!)
+                            : const AssetImage('assets/images/boy.png')) as ImageProvider,
                       ),
                       Positioned(
                         bottom: 0,
@@ -90,6 +133,7 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
                     style: const TextStyle(
                       fontSize: 20.0,
                       fontWeight: FontWeight.bold,
+                      color: Colors.white,
                     ),
                   ),
                   Text(
@@ -102,40 +146,79 @@ class _ModificationApprenantState extends State<ModificationApprenant> {
                 ],
               ),
             ),
-            const SizedBox(height: 20.0),
+            const SizedBox(height: 50.0),
             // Bloc pour la modification des informations
             Expanded(
-              child: ListView(
-                children: [
-                  TextField(
-                    controller: _prenomController,
-                    decoration: const InputDecoration(
-                      labelText: 'Prénom',
-                      border: OutlineInputBorder(),
+              child: Padding(
+                padding: const EdgeInsets.all(30.0),
+                child: ListView(
+                  children: [
+                    TextField(
+                      controller: _prenomController,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Prénom',
+                        labelStyle: TextStyle(
+                          color: Colors.grey,
+                        )
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 10.0),
-                  TextField(
-                    controller: _nomController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nom',
-                      border: OutlineInputBorder(),
+                    const SizedBox(height: 10.0),
+                    TextField(
+                      controller: _nomController,
+                      style: const TextStyle(
+                        color: Colors.white,
+                      ),
+                      decoration: const InputDecoration(
+                        labelText: 'Nom',
+                          labelStyle: TextStyle(
+                            color: Colors.grey,
+                          )
+                      ),
                     ),
-                  ),
-                  const SizedBox(height: 20.0),
-                  ElevatedButton(
-                    onPressed: () {
-                      // Enregistrer les modifications dans Firestore
-                      FirebaseFirestore.instance.collection('utilisateurs').doc(user?.uid).update({
-                        'prenom': _prenomController.text,
-                        'nom': _nomController.text,
-                        // Ajoutez ici la mise à jour du rôle ou d'autres champs si nécessaire
-                      });
-                      Navigator.of(context).pop(); // Retour à la page précédente
-                    },
-                    child: const Text('Enregistrer les modifications'),
-                  ),
-                ],
+                    const SizedBox(height: 40.0),
+                    ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        foregroundColor: Colors.white,
+                        backgroundColor: const Color(0xff0E39C6),
+                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Espacement personnalisé
+                      ),
+                      onPressed: () async {
+                        if (_imagePath != null) {
+                          // Si une nouvelle image a été sélectionnée, uploader l'image
+                          await _uploadImage(File(_imagePath!));
+                        }
+
+                        // Enregistrer les modifications dans Firestore
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user != null) {
+                          await FirebaseFirestore.instance.collection('utilisateurs').doc(user.uid).update({
+                            'prenom': _prenomController.text,
+                            'nom': _nomController.text,
+                            'imageUrl': _imageUrl, // Mettre à jour l'URL de l'image
+                          });
+                        }
+
+                        // Afficher la boîte de dialogue modale de succès
+                        showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return const MessageModale(
+                              title: "Success",
+                              content: "Modification réussie",
+                            );
+                          },
+                        );
+                        // Retour à la page précédente
+                        //Navigator.of(context).pop();
+                      },
+                      child: const Text('Modifier'),
+                    ),
+
+                  ],
+                ),
               ),
             ),
           ],

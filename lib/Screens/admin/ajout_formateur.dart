@@ -2,12 +2,12 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
-class AjoutApprenant extends StatefulWidget {
+class AjoutFormateur extends StatefulWidget {
   @override
-  _AjoutApprenantState createState() => _AjoutApprenantState();
+  _AjoutFormateurState createState() => _AjoutFormateurState();
 }
 
-class _AjoutApprenantState extends State<AjoutApprenant> {
+class _AjoutFormateurState extends State<AjoutFormateur> {
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
   String _prenom = '';
   String _nom = '';
@@ -22,7 +22,7 @@ class _AjoutApprenantState extends State<AjoutApprenant> {
       _formKey.currentState?.save();
       try {
         // Récupérer l'ID du formateur connecté
-        final formateurId = FirebaseAuth.instance.currentUser?.uid;
+        final adminId = FirebaseAuth.instance.currentUser?.uid;
 
         // Création de l'utilisateur apprenant dans Firebase Authentication avec un mot de passe par défaut
         UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
@@ -30,19 +30,19 @@ class _AjoutApprenantState extends State<AjoutApprenant> {
           password: '12345678', // Mot de passe par défaut
         );
 
-        // Enregistrement des informations de l'apprenant dans Firestore
+        // Enregistrement des informations du formateur dans Firestore
         await FirebaseFirestore.instance.collection('utilisateurs').doc(userCredential.user!.uid).set({
           'prenom': _prenom,
           'nom': _nom,
           'email': _email,
-          'role': 'APPRENANT', // Rôle par défaut
+          'role': 'FORMATEUR', // Rôle par défaut
           'created_at': Timestamp.now(),
-          'formateur_id': formateurId, // ID du formateur connecté
+          'admin_id': adminId, // ID du formateur connecté
         });
 
         // Afficher un message de succès
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Apprenant ajouté avec succès')),
+          const SnackBar(content: Text('Formateur ajouté avec succès')),
         );
 
         // Réinitialiser le formulaire après l'enregistrement
@@ -64,14 +64,10 @@ class _AjoutApprenantState extends State<AjoutApprenant> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        foregroundColor: Colors.white,
-        backgroundColor: const Color(0xff1E1C40),
-      ),
       backgroundColor: const Color(0xff1E1C40),
       body: SingleChildScrollView(
         child: Padding(
-          padding: const EdgeInsets.all(30.0),
+          padding: const EdgeInsets.all(40.0),
           child: Column(
             children: <Widget>[
               Image.asset(
@@ -148,12 +144,10 @@ class _AjoutApprenantState extends State<AjoutApprenant> {
                     ElevatedButton(
                       onPressed: _submitForm,
                       style: ElevatedButton.styleFrom(
-                        textStyle: const TextStyle(
-                          fontSize: 20,
+                        padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10.0),
                         ),
-                        foregroundColor: Colors.white,
-                        backgroundColor: const Color(0xff0E39C6),
-                        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12), // Espacement personnalisé
                       ),
                       child: const Text("Enregistrer"),
                     ),
